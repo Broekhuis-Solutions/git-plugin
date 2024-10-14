@@ -777,11 +777,16 @@ public abstract class AbstractGitSCMSource extends SCMSource {
                 listener.getLogger().println("Checking tags...");
                 walk.setRetainBody(false);
                 int count = 0;
+                int mapSize = remoteReferences.size();
                 for (final Map.Entry<String, ObjectId> ref : remoteReferences.entrySet()) {
                     if (!ref.getKey().startsWith(Constants.R_TAGS)) {
                         continue;
                     }
                     count++;
+
+                    if (count <  mapSize - 5) {
+                        continue;
+                    }
                     final String tagName = StringUtils.removeStart(ref.getKey(), Constants.R_TAGS);
                     RevCommit commit = walk.parseCommit(ref.getValue());
                     final long lastModified = TimeUnit.SECONDS.toMillis(commit.getCommitTime());
