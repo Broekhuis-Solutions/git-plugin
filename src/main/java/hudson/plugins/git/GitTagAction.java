@@ -93,7 +93,17 @@ public class GitTagAction extends AbstractScmTagAction implements Describable<Gi
      * @return tag names and annotations for this repository
      */
     public Map<String, List<String>> getTags() {
-        return Collections.unmodifiableMap(tags);
+        Map<String, List<String>> limitedTags = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : tags.entrySet()) {
+            List<String> tagList = entry.getValue();
+            // Sort the tags if necessary, then limit to the last 5
+            List<String> lastFiveTags = tagList.stream()
+                                               .sorted(Comparator.reverseOrder()) // Optional: adjust sort if needed
+                                               .limit(5)
+                                               .collect(Collectors.toList());
+            limitedTags.put(entry.getKey(), lastFiveTags);
+        }
+        return Collections.unmodifiableMap(limitedTags);        
     }
 
     @Exported(name = "tags")
@@ -101,8 +111,13 @@ public class GitTagAction extends AbstractScmTagAction implements Describable<Gi
         List<TagInfo> data = new ArrayList<>();
         for (Map.Entry<String, List<String>> e : tags.entrySet()) {
             String module = e.getKey();
-            for (String tag : e.getValue())
+            List<String> tagList = e.getValue().stream()
+                                    .sorted(Comparator.reverseOrder()) // Optional: adjust sort if needed
+                                    .limit(5)
+                                    .collect(Collectors.toList());
+            for (String tag : tagList) {
                 data.add(new TagInfo(module, tag));
+            }
         }
         return data;
     }
