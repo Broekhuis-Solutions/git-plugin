@@ -1,0 +1,8 @@
+services:
+  maven-build:
+    build:
+      context: ./docker/development/
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    command: mvn clean package
