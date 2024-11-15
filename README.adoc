@@ -26,8 +26,16 @@ Copy the .hpi(compiled file) to your local system (ONLY DO THIS IF ON UNIX SYSTE
 [source,bash]
 make copy
 
+=== Upload the plugin to jenkins
+Open up jenkins in your browser, logged in as an admin
+
+`Manage jenkins -> Plugins -> Advanced settings`
+
+`Deploy Plugin -> Choose File -> Deploy -> Restart Jenkins`
+
+
 [#introduction]
-== Introduction
+= Introduction
 
 image::images/jenkins-and-git.png[Jenkins and Git]
 
