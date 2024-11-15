@@ -4,7 +4,7 @@
 :toc-title:
 
 [#Compile]
-== Compile
+=== Compile
 Since this is a fork from the original git plugin used for Jenkins we have to compile our own changes.
 
 Create a Docker image and spin up the container
