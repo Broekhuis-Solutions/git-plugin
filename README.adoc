@@ -3,6 +3,29 @@
 :toc: macro
 :toc-title:
 
+[#Compile]
+== Compile
+Since this is a fork from the original git plugin used for Jenkins we have to compile our own changes.
+
+Create a Docker image and spin up the container
+[source,bash]
+make up
+
+
+Keep an eye out for the logs, when its finished it should like this
+[source, bash]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  04:19 min
+[INFO] Finished at: 2024-11-15T08:57:30Z
+[INFO] ------------------------------------------------------------------------
+
+
+Copy the .hpi(compiled file) to your local system (ONLY DO THIS IF ON UNIX SYSTEM)
+[source,bash]
+make copy
+
 [#introduction]
 == Introduction
 
