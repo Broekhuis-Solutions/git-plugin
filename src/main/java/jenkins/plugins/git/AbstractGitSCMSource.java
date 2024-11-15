@@ -776,17 +776,31 @@ public abstract class AbstractGitSCMSource extends SCMSource {
                     throws IOException, InterruptedException {
                 listener.getLogger().println("Checking tags...");
                 walk.setRetainBody(false);
-                int count = 0;
-                int mapSize = remoteReferences.size();
+
+                List<Map.Entry<String, ObjectId>> tags = new ArrayList<>();
                 for (final Map.Entry<String, ObjectId> ref : remoteReferences.entrySet()) {
+                    if (ref.getKey().startsWith(Constants.R_TAGS)) {
+                        tags.add(ref);
+                    }
+                }
+
+                tags.sort((a, b) -> {
+                    try {
+                        RevCommit commitA = walk.parseCommit(a.getValue());
+                        RevCommit commitB = walk.parseCommit(b.getValue());
+                        return Long.compare(commitB.getCommitTime(), commitA.getCommitTime()); // descending order
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                int count = 0;
+
+                for (final Map.Entry<String, ObjectId> ref : tags.subList(0, Math.min(5, tags.size()))) {
                     if (!ref.getKey().startsWith(Constants.R_TAGS)) {
                         continue;
                     }
                     count++;
-
-                    if (count <  mapSize - 5) {
-                        continue;
-                    }
                     final String tagName = StringUtils.removeStart(ref.getKey(), Constants.R_TAGS);
                     RevCommit commit = walk.parseCommit(ref.getValue());
                     final long lastModified = TimeUnit.SECONDS.toMillis(commit.getCommitTime());
