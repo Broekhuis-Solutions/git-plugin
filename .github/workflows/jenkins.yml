@@ -2,7 +2,9 @@ name: Build and Deploy Custom Jenkins Plugin
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - GHC-448
     paths:
       - 'src/**'
       - 'pom.xml'
