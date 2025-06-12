@@ -57,7 +57,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download Broekhuis plugin
+    - name: Download plugin artifact
       uses: actions/download-artifact@v4
       with:
         name: broekhuis-git-plugin
