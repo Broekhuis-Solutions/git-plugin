@@ -1,22 +1,30 @@
-FROM ubuntu:22.04
+FROM jenkins/jenkins:lts
 
-ENV MAVEN_VERSION=3.9.6
-ENV MAVEN_DOWNLOAD_URL=https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+# Switch to root to install dependencies
+USER root
 
-RUN apt-get update && \
-    apt-get install -y wget openjdk-17-jdk openjdk-17-jre tar && \
-    apt-get clean
+# Copy the custom git plugin and rename it with .jpi extension.
+COPY git.hpi /usr/share/jenkins/ref/plugins/broekhuis-git-plugin.jpi
 
-RUN mkdir /code \
-    && mkdir /bin/maven
+# Install required dependencies - let Jenkins resolve versions automatically
+# Note: We're installing the dependencies but the custom plugin will override the default git plugin
+RUN jenkins-plugin-cli --plugins \
+    workflow-scm-step \
+    workflow-step-api \
+    credentials-binding \
+    configuration-as-code \
+    kubernetes \
+    workflow-aggregator \
+    credentials \
+    git-client \
+    mailer \
+    scm-api \
+    script-security \
+    ssh-credentials \
+    structs
 
-RUN wget ${MAVEN_DOWNLOAD_URL} -O /tmp/apache-maven.tar.gz && \
-    tar -xzf /tmp/apache-maven.tar.gz -C /opt && \
-    ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /bin/mvn && \
-    rm /tmp/apache-maven.tar.gz
+# Switch back to jenkins user
+USER jenkins
 
-WORKDIR /code
-
-COPY . .
-
-CMD ["mvn", "clean", "install", "-U", "-Dmaven.test.skip=true"]
+# Skip the setup wizard
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
