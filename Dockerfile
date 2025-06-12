@@ -3,7 +3,7 @@ FROM jenkins/jenkins:lts
 # Switch to root to install dependencies
 USER root
 
-# Copy the custom git plugin and rename it with .jpi extension
+# Copy the custom git plugin and rename it with .jpi extension.
 COPY git.hpi /usr/share/jenkins/ref/plugins/broekhuis-git-plugin.jpi
 
 # Install required dependencies - let Jenkins resolve versions automatically
