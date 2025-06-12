@@ -40,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: broekhuis-git-plugin
-        path: target/broekhuis-git-plugin.hpi
+        path: target/git.hpi
         retention-days: 7
 
   build-and-push-image:
