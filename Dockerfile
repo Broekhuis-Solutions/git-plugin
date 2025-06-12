@@ -12,6 +12,9 @@ RUN jenkins-plugin-cli --plugins \
     workflow-scm-step \
     workflow-step-api \
     credentials-binding \
+    configuration-as-code \
+    kubernetes \
+    workflow-aggregator \
     credentials \
     git-client \
     mailer \
