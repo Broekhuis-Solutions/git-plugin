@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - GHC-448
     paths:
       - 'src/**'
       - 'pom.xml'
