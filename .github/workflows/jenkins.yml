@@ -1,0 +1,95 @@
+name: Build and Deploy Custom Jenkins Plugin
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - '.github/workflows/jenkins.yml'
+  workflow_dispatch:    
+
+jobs:
+  build-plugin-package:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Build plugin (skip tests)
+      run: mvn clean package -DskipTests
+
+    - name: Upload Broekhuis plugin 
+      uses: actions/upload-artifact@v4
+      with:
+        name: broekhuis-git-plugin
+        path: target/git.hpi
+        retention-days: 7
+
+  build-and-push-image:
+    needs: build-plugin-package
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download plugin artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: broekhuis-git-plugin
+        path: target/
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io/${{ github.repository }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,format=short
+          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: target
+        file: Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
